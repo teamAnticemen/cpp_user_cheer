@@ -1,0 +1,71 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int Q;
+    cin >> Q;
+
+    vector<int> user_pages(100001, 0);  // user_pages[user] = страница до которой дочитал этот юзер
+    vector<int> page_counts(1001, 0);   // page_counts[page] = кол-во юзеров дочитавших до этой страницы
+    int max_user = 0;
+
+    while (Q--) {
+        string type;
+        cin >> type;
+
+        if (type == "READ") {
+            int user, page;
+            cin >> user >> page;
+
+            int prev_page = user_pages[user];
+            if (prev_page > 0) {
+                // Уменьшаем счетчик для предшествующей страницы
+                for (int p = prev_page; p >= 0; --p) {
+                    page_counts[p]--;
+                }
+            } else {
+                max_user++;
+            }
+
+            user_pages[user] = page;
+
+            // Увеличиваем счетчик для новой страницы
+            for (int p = page; p >= 0; --p) {
+                page_counts[p]++;
+            }
+
+        } else if (type == "CHEER") {
+            int user;
+            cin >> user;
+
+            int this_user_page = user_pages[user];
+            if (this_user_page == 0) {
+                cout << "0\n";
+                continue;
+            }
+
+            int total_users = page_counts[this_user_page];
+            if (total_users == 1) {
+                cout << "1\n";
+                continue;
+            }
+
+            if (total_users == max_user) {
+                cout << "0\n";
+                continue;
+            }
+
+            double ratio = (max_user - total_users) / (max_user - 1.0);
+            cout << setprecision(6) << ratio << "\n";
+        }
+    }
+
+    return 0;
+}
